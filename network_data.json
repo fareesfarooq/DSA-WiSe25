@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id": "HUB1", "type": "distributor"},
+    {"id": "HOUSE_A", "type": "delivery"},
+    {"id": "HOUSE_B", "type": "delivery"},
+    {"id": "HOUSE_C", "type": "delivery"},
+    {"id": "CHARGE1", "type": "charging"}
+  ],
+  "edges": [
+    {"from": "HUB1", "to": "CHARGE1", "energy": 5, "capacity": 3, "bidirectional": true},
+    {"from": "CHARGE1", "to": "HOUSE_A", "energy": 4, "capacity": 2, "bidirectional": true},
+    {"from": "CHARGE1", "to": "HOUSE_B", "energy": 6, "capacity": 2, "bidirectional": true},
+    {"from": "HUB1", "to": "HOUSE_C", "energy": 10, "capacity": 1, "bidirectional": false}
+  ]
+}

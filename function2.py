@@ -1,33 +1,84 @@
-# F2: Define No-Fly Zones (Basic Function)
-# This function blocks specific flight paths (edges) between two nodes,
-# making them no longer usable for drones.
-def define_no_fly_zone(network):
-    # Ask user for the start and end node of the flight path to block
-    u = input("Enter start node ID to block: ")
-    v = input("Enter end node ID to block: ")
-    
-    # Check if the edge exists between the nodes
-    found = False
-    for edge in network.adjacency[u]:
-        if edge.to_node == v:
-            # Block the edge if found
-            edge.blocked = True
-            found = True
-            print(f"Path {u} -> {v} has been blocked (No-Fly Zone created).")
+import heapq
+
+# F2: Efficient Flight Routes (Shortest Path)
+# This function finds the minimum-energy path between two nodes
+# using Dijkstra's algorithm, while ignoring blocked corridors.
+
+def find_efficient_route(network, start_id, goal_id, required_capacity=1):
+    # --- Validation ---
+    if start_id not in network.nodes or goal_id not in network.nodes:
+        print(f"error: start '{start_id}' or goal '{goal_id}' does not exist")
+        return
+
+    if start_id == goal_id:
+        print("start and goal are the same; route energy = 0")
+        print(f"Route: {start_id}")
+        return
+
+    # dist[node] = best known energy cost to reach node
+    dist = {node_id: float("inf") for node_id in network.nodes}
+    dist[start_id] = 0
+
+    # parent[node] = previous node on best path
+    parent = {node_id: None for node_id in network.nodes}
+
+    # min-heap of (current_energy, node_id)
+    pq = [(0, start_id)]
+
+    while pq:
+        current_energy, u = heapq.heappop(pq)
+
+        # If this is an outdated heap entry, skip it
+        if current_energy > dist[u]:
+            continue
+
+        # Early exit once we reach the goal
+        if u == goal_id:
             break
-    
-    # If no such edge is found, notify the user
-    if not found:
-        print("Path not found, nothing was blocked.")
-    
-    # Optional: You can also block edges in the reverse direction for bidirectional edges
-    if not found:
-        for edge in network.adjacency[v]:
-            if edge.to_node == u:
-                edge.blocked = True
-                found = True
-                print(f"Path {v} -> {u} has been blocked (No-Fly Zone created).")
+
+        # Explore outgoing edges from u
+        for edge in network.adjacency.get(u, []):
+            # Skip blocked edges (no-fly zones)
+            if edge.blocked:
+                continue
+
+            # Optional: enforce capacity constraint
+            if edge.capacity < required_capacity:
+                continue
+
+            v = edge.to_node
+            new_energy = current_energy + edge.energy
+
+            if new_energy < dist[v]:
+                dist[v] = new_energy
+                parent[v] = u
+                heapq.heappush(pq, (new_energy, v))
+
+    # --- Reconstruct path ---
+    if dist[goal_id] == float("inf"):
+        print(f"\n[WARNING] No available route from {start_id} to {goal_id}.")
+        print("Reason: graph disconnected, or all routes blocked / insufficient capacity.")
+        return
+
+    path = []
+    cur = goal_id
+    while cur is not None:
+        path.append(cur)
+        cur = parent[cur]
+    path.reverse()
+
+    # Optional: compute bottleneck capacity along the chosen path (min capacity on path)
+    bottleneck = float("inf")
+    for i in range(len(path) - 1):
+        a, b = path[i], path[i + 1]
+        # find the actual edge used (a->b) to read its capacity
+        for e in network.adjacency[a]:
+            if e.to_node == b and not e.blocked:
+                bottleneck = min(bottleneck, e.capacity)
                 break
-    
-    if not found:
-        print("No valid flight corridor found between the specified nodes.")
+
+    print(f"\n[RESULT] Most energy-efficient route from {start_id} to {goal_id}:")
+    print(" -> ".join(path))
+    print(f"Total energy cost: {dist[goal_id]}")
+    if bottleneck != float("inf"):
+        print(f"Bottleneck capacity on this route: {bottleneck}")

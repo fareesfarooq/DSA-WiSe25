@@ -25,7 +25,7 @@ DRONE NETWORK CONTROLLER
 3. Block a Flight Path
 4. View Network Summary
 5. [F1] Check Reachability
-6. [F2] Define No-Fly Zone
+6. [F2] Find Efficient Route
 7. [F3] Max Flow Analysis
 8. [F4] Find Critical Edges
 9. [F5] Minimum Maintenance Cost (MST)
@@ -56,10 +56,14 @@ DRONE NETWORK CONTROLLER
             elif u_input == 5:
                 start_node = input("Enter the hub id to start checking from (e.g., HUB1): ")
                 check_reachability(network, start_node)  # F1: Check Reachability
-            
+
             elif u_input == 6:
-                define_no_fly_zone(network)  # F2: Define No-Fly Zone
-            
+                 src = input("Enter start node id (e.g., HUB1): ")
+                 dst = input("Enter destination node id (e.g., HOUSE_A): ")
+                 req = input("Minimum required corridor capacity (default 1): ").strip()
+                 required_capacity = int(req) if req else 1
+                 find_efficient_route(network, src, dst, required_capacity)
+                        
             elif u_input == 7:
                 # [F3] Max Flow Analysis
                 src = input("Enter source hub id (e.g., HUB1): ")

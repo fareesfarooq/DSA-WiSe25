@@ -1,47 +1,61 @@
-# F4: Assess and Improve Network Resilience
-# This function identifies critical edges (bridges) whose removal will split the network into disconnected parts.
+# F4: Assess and Improve Network Resilience (UNDIRECTED VIEW)
+# NOTE: Although the network is stored as directed edges, for resilience we treat corridors as UNDIRECTED connectivity.
+# That means if there is an edge u -> v (or v -> u), we assume u and v are connected for the purpose of bridge finding.
+# We then use Tarjan's bridge-finding algorithm on this undirected view.
+
 def find_critical_edges(network):
-    # Helper function: Depth-First Search (DFS)
+    # Build an UNDIRECTED adjacency view from the directed graph
+    undirected_adj = {node: [] for node in network.nodes}
+
+    for u in network.nodes:
+        for edge in network.adjacency[u]:
+            v = edge.to_node
+            # Add both directions (treat as undirected)
+            undirected_adj[u].append(v)
+            undirected_adj[v].append(u)
+
+    # Helper function: Depth-First Search (DFS) for bridges (Tarjan)
     def dfs(u, visited, discovery, low, parent, time_counter, bridges):
         visited[u] = True
         discovery[u] = low[u] = time_counter[0]
-        time_counter[0] += 1  # Increment time using list to maintain reference
-        
-        # Visit all adjacent nodes
-        for edge in network.adjacency[u]:
-            v = edge.to_node
-            
-            if not visited[v]:  # If v is not visited
+        time_counter[0] += 1
+
+        # Visit all adjacent nodes (UNDIRECTED)
+        for v in undirected_adj[u]:
+            if not visited[v]:
                 parent[v] = u
                 dfs(v, visited, discovery, low, parent, time_counter, bridges)
-                
-                # Check if the subtree rooted at v has a connection back to one of u's ancestors
+
+                # Update low-link value
                 low[u] = min(low[u], low[v])
-                
-                # If the lowest vertex reachable from v is below u in DFS tree, then u-v is a critical edge
+
+                # Bridge condition in undirected graphs
                 if low[v] > discovery[u]:
-                    bridges.append((u, v))
-            
-            elif v != parent[u]:  # If v is already visited and is not parent
+                    # Store consistently to avoid duplicates like (u,v) and (v,u)
+                    bridges.append(tuple(sorted((u, v))))
+
+            elif v != parent[u]:
                 low[u] = min(low[u], discovery[v])
-    
+
     # Initialize data structures
     visited = {node: False for node in network.nodes}
     discovery = {node: float('inf') for node in network.nodes}
     low = {node: float('inf') for node in network.nodes}
     parent = {node: None for node in network.nodes}
-    time_counter = [0]  # Use list to maintain reference across recursive calls
+    time_counter = [0]
     bridges = []
-    
-    # Run DFS for each unvisited node to find critical edges
+
+    # Run DFS for each unvisited node
     for node in network.nodes:
         if not visited[node]:
             dfs(node, visited, discovery, low, parent, time_counter, bridges)
-    
-    # Report the result
+
+    # Remove duplicates (safety) and report
+    bridges = sorted(set(bridges))
+
     if bridges:
-        print("\n[RESULT] Critical Edges (Bridges) in the Network:")
-        for edge in bridges:
-            print(f"  - {edge[0]} -> {edge[1]}")
+        print("\n[RESULT] Critical Edges (Bridges) in the Network (Undirected Resilience View):")
+        for (a, b) in bridges:
+            print(f"  - {a} <-> {b}")
     else:
-        print("\n[INFO] No critical edges found (the network is resilient).")
+        print("\n[INFO] No critical edges found (the network is resilient under undirected connectivity).")

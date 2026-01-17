@@ -1,4 +1,4 @@
-from network import DroneNetwork
+from Network import DroneNetwork
 from function2 import define_no_fly_zone
 from function4 import find_critical_edges
 from function1 import check_reachability  # For F1 (Check Reachability)

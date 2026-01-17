@@ -1,5 +1,5 @@
-from network import DroneNetwork
-from function2 import find_efficient_route  # For F2 (Efficient Routes)
+from Network import DroneNetwork
+from function2 import define_no_fly_zone
 from function4 import find_critical_edges
 from function1 import check_reachability  # For F1 (Check Reachability)
 from function3 import calculate_max_flow  # For F3 (Max Flow)

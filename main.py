@@ -1,5 +1,5 @@
 from Network import DroneNetwork
-from function2 import define_no_fly_zone
+from function2 import find_efficient_route
 from function4 import find_critical_edges
 from function1 import check_reachability  # For F1 (Check Reachability)
 from function3 import calculate_max_flow  # For F3 (Max Flow)
@@ -28,9 +28,8 @@ DRONE NETWORK CONTROLLER
 6. [F2] Find Efficient Route
 7. [F3] Max Flow Analysis
 8. [F4] Find Critical Edges
-9. [F5] Minimum Maintenance Cost (MST)
-10. [F6] Communication Network (MST)
-11. Exit
+9. [F6] Communication Network (MST)
+10. Exit
 """
     
     while True:
@@ -75,13 +74,10 @@ DRONE NETWORK CONTROLLER
                 find_critical_edges(network)  # F4: Find Critical Edges
             
             elif u_input == 9:
-                print("Function 5 goes here")  # F5 can be implemented here, or print a message for now
-            
-            elif u_input == 10:
                 # F6: Communication Network (MST)
                 find_communication_network(network)  # F6: Communication Network (MST)
                 
-            elif u_input == 11:
+            elif u_input == 10:
                 print("Ending program")
                 logging.info("Program ended")
                 break

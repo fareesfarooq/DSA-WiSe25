@@ -8,11 +8,13 @@ def find_critical_edges(network):
     undirected_adj = {node: [] for node in network.nodes}
 
     for u in network.nodes:
-        for edge in network.adjacency[u]:
-            v = edge.to_node
-            # Add both directions (treat as undirected)
-            undirected_adj[u].append(v)
-            undirected_adj[v].append(u)
+     for edge in network.adjacency.get(u, []):
+        if edge.blocked:
+            continue
+        v = edge.to_node
+        undirected_adj[u].append(v)
+        undirected_adj[v].append(u)
+
 
     # Helper function: Depth-First Search (DFS) for bridges (Tarjan)
     def dfs(u, visited, discovery, low, parent, time_counter, bridges):

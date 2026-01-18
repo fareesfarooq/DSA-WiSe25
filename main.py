@@ -1,6 +1,6 @@
-from Network import DroneNetwork
-from function2 import find_efficient_route
-from function4 import find_critical_edges
+from Network import DroneNetwork # For importing network 
+from function2 import find_efficient_route # For F2 (efficient route)
+from function4 import find_critical_edges # For F4 (critical edges)
 from function1 import check_reachability  # For F1 (Check Reachability)
 from function3 import calculate_max_flow  # For F3 (Max Flow)
 from function6 import find_communication_network  # For F6 (Communication Infrastructure)
@@ -17,7 +17,6 @@ if __name__ == "__main__":
     network = DroneNetwork()
     logging.info("Program started")
     
-    # The menu text is defined here, but we print it inside the loop now
     menu_text = """
 DRONE NETWORK CONTROLLER
 1. Load Network Data (JSON)
@@ -53,8 +52,8 @@ DRONE NETWORK CONTROLLER
                 network.print_summary()
             
             elif u_input == 5:
-                start_node = input("Enter the hub id to start checking from (e.g., HUB1): ")
-                check_reachability(network, start_node)  # F1: Check Reachability
+                start_node = input("Enter the hub id to start checking from (e.g; HUB1): ")
+                check_reachability(network, start_node) 
 
             elif u_input == 6:
                  src = input("Enter start node id (e.g., HUB1): ")
@@ -64,18 +63,17 @@ DRONE NETWORK CONTROLLER
                  find_efficient_route(network, src, dst, required_capacity)
                         
             elif u_input == 7:
-                # [F3] Max Flow Analysis
                 src = input("Enter source hub id (e.g., HUB1): ")
                 dst = input("Enter destination node id (e.g., HOUSE_A): ")
-                calculate_max_flow(network, src, dst)  # F3: Max Flow Analysis
+                calculate_max_flow(network, src, dst) 
             
             elif u_input == 8:
-                # F4: Find Critical Edges
-                find_critical_edges(network)  # F4: Find Critical Edges
+               
+                find_critical_edges(network) 
             
             elif u_input == 9:
-                # F6: Communication Network (MST)
-                find_communication_network(network)  # F6: Communication Network (MST)
+        
+                find_communication_network(network)  
                 
             elif u_input == 10:
                 print("Ending program")
@@ -85,7 +83,6 @@ DRONE NETWORK CONTROLLER
             else:
                 print("Invalid selection")
             
-            # Optional: Add a pause so the user can read the result before the menu clears/reappears
             input("\nPress Enter to continue...")
         
         except ValueError:

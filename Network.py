@@ -62,8 +62,7 @@ class DroneNetwork:
                     edge_data.get('bidirectional', False)
                 )
 
-            print(
-                f"loaded {len(self.nodes)} nodes and {len(self.edges)} edges")
+            print(f"loaded {len(self.nodes)} nodes and {len(self.edges)} edges")
 
         except FileNotFoundError:
             print(f"file '{filename}' was not found, check the name")
@@ -79,10 +78,29 @@ class DroneNetwork:
 
         if bidirectional:
             # if corridor is usable both ways, add reverse edge
-            reverse_edge = Edge(to_id, from_id, energy,
-                                capacity, bidirectional)
+            reverse_edge = Edge(to_id, from_id, energy, capacity, bidirectional)
             self.edges.append(reverse_edge)
             self.adjacency[to_id].append(reverse_edge)
+
+    # NEW: Add corridor via menu (so new nodes can be connected)
+    def add_corridor_menu(self):
+        from_id = input("from node id: ")
+        to_id = input("to node id: ")
+
+        if from_id not in self.nodes or to_id not in self.nodes:
+            print("one or both nodes do not exist. add them first.")
+            return
+
+        try:
+            energy = float(input("energy cost: "))
+            capacity = int(input("capacity: "))
+        except ValueError:
+            print("invalid energy/capacity input.")
+            return
+
+        bidir = input("bidirectional? (y/n): ").strip().lower() == "y"
+        self.add_edge_internal(from_id, to_id, energy, capacity, bidir)
+        print(f"corridor added: {from_id} {'<->' if bidir else '->'} {to_id}")
 
     # B2: Define no-fly zones (basic)
     # blocks a specific corridor between two nodes
@@ -90,8 +108,12 @@ class DroneNetwork:
         u = input("enter start node id to block: ")
         v = input("enter end node id to block: ")
 
+        if u not in self.nodes or v not in self.nodes:
+            print("one or both nodes do not exist.")
+            return
+
         found = False
-        for edge in self.adjacency[u]:
+        for edge in self.adjacency.get(u, []):
             if edge.to_node == v:
                 edge.blocked = True
                 found = True
@@ -102,20 +124,41 @@ class DroneNetwork:
 
     # B3: extend the drone network (adding nodes)
     # allows new nodes such as buildings or charging stations
+    # UPDATED: offers connecting the node right away
     def add_node_menu(self):
         nid = input("enter node id: ")
         ntype = input("enter node type (distributor/delivery/charging): ")
 
         if nid in self.nodes:
             print("node already exists")
-        else:
-            self.nodes[nid] = Node(nid, ntype)
-            print(f"node {nid} added")
+            return
+
+        self.nodes[nid] = Node(nid, ntype)
+        print(f"node {nid} added")
+
+        connect = input("do you want to connect this node now? (y/n): ").strip().lower()
+        while connect == "y":
+            from_id = input("connect FROM node id: ")
+            if from_id not in self.nodes:
+                print("that node does not exist.")
+                continue
+
+            try:
+                energy = float(input("energy cost: "))
+                capacity = int(input("capacity: "))
+            except ValueError:
+                print("invalid energy/capacity input.")
+                continue
+
+            bidir = input("bidirectional? (y/n): ").strip().lower() == "y"
+            self.add_edge_internal(from_id, nid, energy, capacity, bidir)
+
+            print(f"connected {from_id} {'<->' if bidir else '->'} {nid}")
+            connect = input("add another connection to this node? (y/n): ").strip().lower()
 
     # utility function to show current network state
     def print_summary(self):
-        print(
-            f"\nnetwork summary: {len(self.nodes)} nodes, {len(self.edges)} edges")
+        print(f"\nnetwork summary: {len(self.nodes)} nodes, {len(self.edges)} edges")
         print("nodes currently in the network:")
         for n in self.nodes.values():
             print(f" - {n}")

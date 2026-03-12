@@ -1,20 +1,19 @@
-# F4: Assess and Improve Network Resilience (UNDIRECTED VIEW)
-# NOTE: Although the network is stored as directed edges, for resilience we treat corridors as UNDIRECTED connectivity.
-# That means if there is an edge u -> v (or v -> u), we assume u and v are connected for the purpose of bridge finding.
+# F4: Assess and Improve Network Resilience 
+# if there is an edge u -> v (or v -> u), we assume u and v are connected for the purpose of bridge finding.
 # We then use Tarjan's bridge-finding algorithm on this undirected view.
 
 def find_critical_edges(network):
-    # Build an UNDIRECTED adjacency view from the directed graph
+    # Build an undirected adjacency view from the directed graph
     undirected_adj = {node: [] for node in network.nodes}
 
     for u in network.nodes:
-        for edge in network.adjacency.get(u, []):
-            if edge.blocked:
-                continue
-            v = edge.to_node
-            # Add both directions (treat as undirected)
-            undirected_adj[u].append(v)
-            undirected_adj[v].append(u)
+     for edge in network.adjacency.get(u, []):
+        if edge.blocked:
+            continue
+        v = edge.to_node
+        undirected_adj[u].append(v)
+        undirected_adj[v].append(u)
+
 
     # Helper function: Depth-First Search (DFS) for bridges (Tarjan)
     def dfs(u, visited, discovery, low, parent, time_counter, bridges):
@@ -33,6 +32,7 @@ def find_critical_edges(network):
 
                 # Bridge condition in undirected graphs
                 if low[v] > discovery[u]:
+                    # Store consistently to avoid duplicates like (u,v) and (v,u)
                     bridges.append(tuple(sorted((u, v))))
 
             elif v != parent[u]:

@@ -1,8 +1,5 @@
-# function1.py
-
 # F1: Check Reachability
-# This function verifies whether all assigned delivery points in a given drone network
-# are reachable from a distribution hub using Breadth-First Search (BFS).
+# This function verifies whether all assigned delivery points in a given drone network are rseachable from a distribution hub using BFS
 def check_reachability(network, start_node_id):
 
     # validate that the start node actually exists in the network

@@ -1,11 +1,11 @@
 import heapq
 
 # F2: Efficient Flight Routes (Shortest Path)
-# This function finds the minimum-energy path between two nodes
+# This function finds the minimum energy path between two nodes
 # using Dijkstra's algorithm, while ignoring blocked corridors.
 
 def find_efficient_route(network, start_id, goal_id, required_capacity=1):
-    # --- Validation ---
+    # Validation Check
     if start_id not in network.nodes or goal_id not in network.nodes:
         print(f"error: start '{start_id}' or goal '{goal_id}' does not exist")
         return
@@ -42,7 +42,7 @@ def find_efficient_route(network, start_id, goal_id, required_capacity=1):
             if edge.blocked:
                 continue
 
-            # Optional: enforce capacity constraint
+            # enforce capacity constraint
             if edge.capacity < required_capacity:
                 continue
 
@@ -54,7 +54,7 @@ def find_efficient_route(network, start_id, goal_id, required_capacity=1):
                 parent[v] = u
                 heapq.heappush(pq, (new_energy, v))
 
-    # --- Reconstruct path ---
+    # Reconstruct path
     if dist[goal_id] == float("inf"):
         print(f"\n[WARNING] No available route from {start_id} to {goal_id}.")
         print("Reason: graph disconnected, or all routes blocked / insufficient capacity.")
@@ -67,11 +67,11 @@ def find_efficient_route(network, start_id, goal_id, required_capacity=1):
         cur = parent[cur]
     path.reverse()
 
-    # Optional: compute bottleneck capacity along the chosen path (min capacity on path)
+    # Compute botttleneck capacity along the chosen path (min capacity on path)
     bottleneck = float("inf")
     for i in range(len(path) - 1):
         a, b = path[i], path[i + 1]
-        # find the actual edge used (a->b) to read its capacity
+        # find the actual edge used (a-->b) to read its capacity
         for e in network.adjacency[a]:
             if e.to_node == b and not e.blocked:
                 bottleneck = min(bottleneck, e.capacity)
